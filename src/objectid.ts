@@ -1,7 +1,8 @@
 import { BSONValue } from './bson_value';
 import { BSONError } from './error';
 import { type InspectFn, defaultInspect } from './parser/utils';
-import { BSONDataView, ByteUtils } from './utils/byte_utils';
+import { ByteUtils } from './utils/byte_utils';
+import { BSONDataView } from './utils/data_view';
 
 // Regular expression that checks for hex value
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$');

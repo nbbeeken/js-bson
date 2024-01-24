@@ -14,7 +14,8 @@ import { ObjectId } from '../objectid';
 import { BSONRegExp } from '../regexp';
 import { BSONSymbol } from '../symbol';
 import { Timestamp } from '../timestamp';
-import { BSONDataView, ByteUtils } from '../utils/byte_utils';
+import { ByteUtils } from '../utils/byte_utils';
+import { BSONDataView } from '../utils/data_view';
 import { validateUtf8 } from '../validate_utf8';
 
 /** @public */
@@ -236,7 +237,7 @@ function deserializeObject(
     if (i >= buffer.byteLength) throw new BSONError('Bad BSON Document: illegal CString');
 
     // Represents the key
-    const name = isArray ? arrayIndex++ : ByteUtils.toUTF8(buffer, index, i);
+    const name = isArray ? arrayIndex++ : ByteUtils.toUTF8(buffer, index, i, false);
 
     // shouldValidateKey is true if the key should be validated, false otherwise
     let shouldValidateKey = true;
@@ -476,7 +477,7 @@ function deserializeObject(
       // If are at the end of the buffer there is a problem with the document
       if (i >= buffer.length) throw new BSONError('Bad BSON Document: illegal CString');
       // Return the C string
-      const source = ByteUtils.toUTF8(buffer, index, i);
+      const source = ByteUtils.toUTF8(buffer, index, i, false);
       // Create the regexp
       index = i + 1;
 
@@ -489,7 +490,7 @@ function deserializeObject(
       // If are at the end of the buffer there is a problem with the document
       if (i >= buffer.length) throw new BSONError('Bad BSON Document: illegal CString');
       // Return the C string
-      const regExpOptions = ByteUtils.toUTF8(buffer, index, i);
+      const regExpOptions = ByteUtils.toUTF8(buffer, index, i, false);
       index = i + 1;
 
       // For each option add the corresponding one for javascript
@@ -521,7 +522,7 @@ function deserializeObject(
       // If are at the end of the buffer there is a problem with the document
       if (i >= buffer.length) throw new BSONError('Bad BSON Document: illegal CString');
       // Return the C string
-      const source = ByteUtils.toUTF8(buffer, index, i);
+      const source = ByteUtils.toUTF8(buffer, index, i, false);
       index = i + 1;
 
       // Get the start search index
@@ -533,7 +534,7 @@ function deserializeObject(
       // If are at the end of the buffer there is a problem with the document
       if (i >= buffer.length) throw new BSONError('Bad BSON Document: illegal CString');
       // Return the C string
-      const regExpOptions = ByteUtils.toUTF8(buffer, index, i);
+      const regExpOptions = ByteUtils.toUTF8(buffer, index, i, false);
       index = i + 1;
 
       // Set the object
@@ -678,7 +679,7 @@ function deserializeObject(
           throw new BSONError('Invalid UTF-8 string in BSON document');
         }
       }
-      const namespace = ByteUtils.toUTF8(buffer, index, index + stringSize - 1);
+      const namespace = ByteUtils.toUTF8(buffer, index, index + stringSize - 1, false);
       // Update parse index position
       index = index + stringSize;
 
@@ -735,17 +736,5 @@ function getValidatedString(
   end: number,
   shouldValidateUtf8: boolean
 ) {
-  const value = ByteUtils.toUTF8(buffer, start, end);
-  // if utf8 validation is on, do the check
-  if (shouldValidateUtf8) {
-    for (let i = 0; i < value.length; i++) {
-      if (value.charCodeAt(i) === 0xfffd) {
-        if (!validateUtf8(buffer, start, end)) {
-          throw new BSONError('Invalid UTF-8 string in BSON document');
-        }
-        break;
-      }
-    }
-  }
-  return value;
+  return ByteUtils.toUTF8(buffer, start, end, shouldValidateUtf8);
 }

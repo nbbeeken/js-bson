@@ -123,7 +123,10 @@ const bufferFromHexArray = array => {
     })
     .join('');
 
-  return Buffer.from(byteLength + string, 'hex');
+  const b = Buffer.from(byteLength + string, 'hex');
+  const buf = Buffer.alloc(b.byteLength);
+  buf.set(b);
+  return buf;
 };
 
 exports.bufferFromHexArray = bufferFromHexArray;

@@ -2,7 +2,7 @@ import { BSON, BSONError, EJSON, __noBigInt__ } from '../register-bson';
 import { bufferFromHexArray } from './tools/utils';
 import { expect } from 'chai';
 import { BSON_DATA_LONG } from '../../src/constants';
-import { BSONDataView } from '../../src/utils/byte_utils';
+import { BSONDataView } from '../../src/utils/data_view';
 
 describe('BSON BigInt support', function () {
   beforeEach(function () {

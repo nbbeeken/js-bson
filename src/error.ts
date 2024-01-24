@@ -23,8 +23,11 @@ export class BSONError extends Error {
     return 'BSONError';
   }
 
-  constructor(message: string) {
+  cause?: unknown;
+
+  constructor(message: string, options?: { cause?: unknown }) {
     super(message);
+    if (options?.cause) this.cause = options.cause;
   }
 
   /**
@@ -77,6 +80,15 @@ export class BSONRuntimeError extends BSONError {
     return 'BSONRuntimeError';
   }
 
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class BSONParseError extends BSONError {
+  get name(): 'BSONParseError' {
+    return 'BSONParseError';
+  }
   constructor(message: string) {
     super(message);
   }

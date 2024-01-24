@@ -3,6 +3,7 @@ import { Code } from './code';
 import { DBRef } from './db_ref';
 import { Decimal128 } from './decimal128';
 import { Double } from './double';
+import { BSONError } from './error';
 import { Int32 } from './int_32';
 import { Long } from './long';
 import { MaxKey } from './max_key';
@@ -11,6 +12,7 @@ import { ObjectId } from './objectid';
 import { internalCalculateObjectSize } from './parser/calculate_size';
 // Parts of the parser
 import { internalDeserialize, type DeserializeOptions } from './parser/deserializer';
+import { parseToNestedStructure } from './parser/on_demand/parse_to_structure';
 import { serializeInto, type SerializeOptions } from './parser/serializer';
 import { BSONRegExp } from './regexp';
 import { BSONSymbol } from './symbol';
@@ -172,7 +174,12 @@ export function serializeWithBufferAndIndex(
  * @public
  */
 export function deserialize(buffer: Uint8Array, options: DeserializeOptions = {}): Document {
-  return internalDeserialize(ByteUtils.toLocalBufferType(buffer), options);
+  try {
+    return parseToNestedStructure(buffer);
+  } catch (cause) {
+    throw new BSONError((cause as { message: string }).message, { cause });
+  }
+  // return internalDeserialize(ByteUtils.toLocalBufferType(buffer), options);
 }
 
 /** @public */
@@ -248,3 +255,8 @@ export function deserializeStream(
   // Return object containing end index of parsing and list of documents
   return index;
 }
+
+export { parseToElements } from './parser/on_demand/parse_to_elements';
+export { parseToNestedStructure } from './parser/on_demand/parse_to_structure';
+export { BSONDataView } from './utils/data_view';
+export { BSONString } from './string';

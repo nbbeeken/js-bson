@@ -67,3 +67,13 @@ export class Code extends BSONValue {
     return `new Code(${multiLineFn ? '\n' : ''}${parametersString}${endingNewline ? '\n' : ''})`;
   }
 }
+
+/** @internal */
+export function isCode(c: unknown): c is Code {
+  return c != null && typeof c === 'object' && '_bsontype' in c && c._bsontype === 'Code';
+}
+
+/** @internal */
+export function isCodeWithScope(c: unknown): c is Code & { scope: NonNullable<Code['scope']> } {
+  return isCode(c) && c.scope != null;
+}
